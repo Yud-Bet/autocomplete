@@ -25,6 +25,12 @@ export class FirebaseService {
     this.adminAuth = connection.adminApp.auth();
   }
 
+  async list(table: FirebaseTable) {
+    const collectionRef = collection(this.firestore, table);
+    const docs = await getDocs(collectionRef);
+    return docs.docs.map((value) => value.data());
+  }
+
   async get(table: FirebaseTable, key: string) {
     const docRef = doc(this.firestore, table, key);
     const docSnap = await getDoc(docRef);

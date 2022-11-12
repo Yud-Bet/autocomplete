@@ -14,4 +14,9 @@ export class DataGatheringController {
   async log(@Query('query') query: string) {
     return await this.dataGatheringService.log(query);
   }
+
+  @Post('aggregation')
+  async aggregation() {
+    return await this.dataGatheringService.aggregation();
+  }
 }
