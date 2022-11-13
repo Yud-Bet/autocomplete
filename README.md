@@ -1,30 +1,53 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+## System design
+![System design](/assets/system-design.png "System design")
+### Trie data structure
+With small data we can store it in the relational databases. However, fetching the top k search queries from a relational database is inefficient. The data structure trie (prefix tree) is used to overcome the problem.
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+![Trie](/assets/trie.png "Trie")
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+To sort the result we need to store the frequency along with the node.
+| Query       | Frequency   |
+| ----------- | ----------- |
+| tree        | 10          |
+| try         | 29          |
 
-## Description
+### Data gathering service
+Updating the tree in realtime is not practical for 2 reasons:
+ - Users may enter billions of queries per day. Updating the trie on every query significantly slows down the query service.
+ - Top suggestions may not change much once the trie is built. Thus, it is unnecessary to update the trie frequently.
+So, we need to build the data gathering service.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+![Data gathering service](/assets/data-gathering.png "Data gathering service")
+
+### Query logs
+It stores raw data about search queries.
+| Query       | Time         |
+| ----------- | -----------  |
+| tree        | 1668312111347|
+| try         | 1668312101354|
+
+### Aggregation services
+The query logs is usually very large and data is not in the right format. We need to aggregate data so it can be easily proccess later.
+
+### Aggregated data
+| Query       | Frequency         |
+| ----------- | -----------  |
+| tree        | 1000         |
+| try         | 967          |
+
+### Workers
+Workers perform asynchronous jobs at regular intervals.
+
+### Trie cache
+Cache most recent queries for a faster retrieval.
+
+### Trie DB
+Trie is converted to hash table form and save to noSQL database.
+
+### Query services
+Service that perform search autocomplete.
+We can futher optimize query service by cache the result in the browser.
+![Query service](/assets/query-service.png "Query service")
 
 ## Installation
 
@@ -44,30 +67,3 @@ $ npm run start:dev
 # production mode
 $ npm run start:prod
 ```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
