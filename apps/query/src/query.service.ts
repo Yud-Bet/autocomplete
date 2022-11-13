@@ -18,8 +18,6 @@ export class QueryService {
     );
     if (!trieCacheDoc) return [];
 
-    console.log(trieCacheDoc);
-
     const trieCache = Object.entries(trieCacheDoc).map(
       ([prefix, score]) => new TrieCacheItem(prefix, score as number),
     );
