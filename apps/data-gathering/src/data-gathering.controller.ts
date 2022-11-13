@@ -21,4 +21,9 @@ export class DataGatheringController {
   async aggregation() {
     return await this.dataGatheringService.aggregation();
   }
+
+  @Post('refresh-trie')
+  async refreshTrie() {
+    return await this.dataGatheringService.refreshTrie();
+  }
 }

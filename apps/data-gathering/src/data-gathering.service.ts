@@ -1,9 +1,12 @@
 import { FirebaseService, getAllValidChildren, Trie } from '@app/common';
 import { FirebaseTable } from '@app/common/firebase/enums';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class DataGatheringService {
+  private readonly logger = new Logger(DataGatheringService.name);
+
   constructor(private readonly firebaseService: FirebaseService) {}
 
   getHello(): string {
@@ -16,6 +19,14 @@ export class DataGatheringService {
       time: Date.now(),
     });
     return true;
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_5AM)
+  async handleCron() {
+    this.logger.debug('Called cron job everyday at 5AM');
+
+    await this.aggregation();
+    await this.refreshTrie();
   }
 
   async aggregation() {
