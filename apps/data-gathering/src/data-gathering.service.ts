@@ -1,7 +1,6 @@
-import { FirebaseService } from '@app/common';
+import { FirebaseService, getAllValidChildren, Trie } from '@app/common';
 import { FirebaseTable } from '@app/common/firebase/enums';
 import { Injectable } from '@nestjs/common';
-import { Log } from '../types/log.type';
 
 @Injectable()
 export class DataGatheringService {
@@ -38,5 +37,28 @@ export class DataGatheringService {
         },
       );
     }
+  }
+
+  async refreshTrie() {
+    const docs = await this.firebaseService.list(FirebaseTable.AGGREGATED);
+    const trie = new Trie();
+    docs.forEach((value) => {
+      trie.insert(value.query, value.frequency);
+    });
+
+    trie.toList().forEach(async ({ prefix, value }) => {
+      const data = {};
+      value.forEach((item) => {
+        data[item.query] = item.score;
+      });
+      if (prefix) {
+        await this.firebaseService.createOrUpdate(
+          FirebaseTable.TRIE,
+          prefix,
+          data,
+          true,
+        );
+      }
+    });
   }
 }

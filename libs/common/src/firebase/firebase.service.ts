@@ -18,10 +18,14 @@ import { FirebaseTable } from './enums';
 @Injectable()
 export class FirebaseService {
   private firestore: Firestore;
+  private extraFirestore?: Firestore;
   public adminAuth: Auth;
 
   constructor(private connection: FirebaseConnectionService) {
     this.firestore = getFirestore(connection.app);
+    if (connection.extraApp) {
+      this.extraFirestore = getFirestore(connection.extraApp);
+    }
     this.adminAuth = connection.adminApp.auth();
   }
 
@@ -46,8 +50,17 @@ export class FirebaseService {
     return data;
   }
 
-  async createOrUpdate(table: FirebaseTable, key: string, data: any) {
-    const docRef = doc(this.firestore, table, key);
+  async createOrUpdate(
+    table: FirebaseTable,
+    key: string,
+    data: any,
+    useExtraDb = false,
+  ) {
+    let fs = this.firestore;
+    if (useExtraDb && this.extraFirestore) {
+      fs = this.extraFirestore;
+    }
+    const docRef = doc(fs, table, key);
     await setDoc(docRef, data);
   }
 

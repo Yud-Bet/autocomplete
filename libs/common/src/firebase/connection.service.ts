@@ -11,6 +11,7 @@ export class FirebaseConnectionService {
   private firebaseCredential: FirebaseCredential;
   public adminApp: admin.app.App;
   public app: FirebaseApp;
+  public extraApp?: FirebaseApp;
 
   constructor(@Inject('FIREBASE_OPTIONS') private options) {
     this.firebaseCredential = {
@@ -30,5 +31,9 @@ export class FirebaseConnectionService {
       credential: credential.cert(this.firebaseCredential),
     });
     this.app = initializeApp(options.firebaseConfig);
+
+    if (options.extraFirebaseConfig) {
+      this.extraApp = initializeApp(options.extraFirebaseConfig, 'EXTRA');
+    }
   }
 }

@@ -1,4 +1,5 @@
-import { Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { getAllValidChildren, Trie } from '@app/common';
+import { Controller, Get, Post, Query } from '@nestjs/common';
 import { DataGatheringService } from './data-gathering.service';
 
 @Controller()
@@ -7,6 +8,7 @@ export class DataGatheringController {
 
   @Get()
   getHello(): string {
+    this.dataGatheringService.refreshTrie();
     return this.dataGatheringService.getHello();
   }
 

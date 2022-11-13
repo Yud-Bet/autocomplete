@@ -6,6 +6,7 @@ import { FirebaseConfig } from './types';
 
 interface FirebaseModuleOptions {
   firebaseConfig: FirebaseConfig;
+  extraFirebaseConfig?: FirebaseConfig;
 }
 
 @Global()
