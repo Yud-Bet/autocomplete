@@ -1,0 +1,30 @@
+version: '2'
+
+services:
+  data-gathering:
+    build:
+      context: .
+      dockerfile: ./apps/data-gathering/Dockerfile
+    container_name: data-gathering
+    command: npm run start:dev data-gathering
+    env_file:
+      - ./apps/data-gathering/.env
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - '3000:3000'
+
+  query:
+    build:
+      context: .
+      dockerfile: ./apps/query/Dockerfile
+    container_name: query
+    command: npm run start:dev query
+    env_file:
+      - ./apps/query/.env
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - '3001:3001'
