@@ -1,13 +1,20 @@
-import { FirebaseService, Trie } from '@app/common';
+import { FirebaseService } from '@app/common';
 import { FirebaseTable } from '@app/common/firebase/enums';
-import { Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 import { TrieCacheItem } from './types/trie.type';
 
 @Injectable()
 export class QueryService {
-  constructor(private readonly firebaseService: FirebaseService) {}
+  constructor(
+    private readonly firebaseService: FirebaseService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+  ) {}
 
-  getHello(): string {
+  async getHello() {
+    await this.cacheManager.set('cached_item', { value: 2 });
+    const cachedItem = await this.cacheManager.get('cached_item');
+    console.log('cached item: ', cachedItem);
     return 'Hello World!';
   }
 
