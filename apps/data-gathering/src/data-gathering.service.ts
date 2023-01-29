@@ -3,6 +3,8 @@ import { FirebaseTable } from '@app/common/firebase/enums';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
+var crypto = require('crypto');
+
 @Injectable()
 export class DataGatheringService {
   private readonly logger = new Logger(DataGatheringService.name);
@@ -32,7 +34,7 @@ export class DataGatheringService {
   async aggregation() {
     const map = new Map<string, number>();
     const docs = await this.firebaseService.list(FirebaseTable.LOG);
-    docs.forEach((value) => {
+    docs.forEach((value: any) => {
       if (map.has(value.query)) {
         map.set(value.query, map.get(value.query) + 1);
       } else map.set(value.query, 1);
@@ -50,26 +52,71 @@ export class DataGatheringService {
     }
   }
 
-  async refreshTrie() {
-    const docs = await this.firebaseService.list(FirebaseTable.AGGREGATED);
+  async refreshTrie(postfix: string = '') {
+    const PAGE_SIZE = 10000;
+    let lastId = '';
+    let cont = true;
     const trie = new Trie();
-    docs.forEach((value) => {
-      trie.insert(value.query, value.frequency);
-    });
+    do {
+      const current_table = FirebaseTable.AGGREGATED.replace(
+        '/',
+        postfix.length > 0 ? `_${postfix}/` : '/',
+      );
+      console.log('Current table ', current_table);
+      const docs = await this.firebaseService.list(
+        current_table,
+        PAGE_SIZE,
+        lastId,
+      );
+      console.log('Success ', docs.length);
 
-    trie.toList().forEach(async ({ prefix, value }) => {
+      docs.forEach((value: any) => {
+        trie.insert(value.query, value.frequency);
+      });
+      lastId = docs[docs.length - 1]?.id ?? '';
+
+      if (docs.length < PAGE_SIZE) {
+        cont = false;
+        console.log('Stopped!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+      }
+    } while (cont);
+
+    let count = 0;
+    let batchData = {};
+
+    const listialized_trie = trie.toList();
+    for (const { prefix, value } of listialized_trie) {
       const data = {};
       value.forEach((item) => {
         data[item.query] = item.score;
       });
+
       if (prefix) {
-        await this.firebaseService.createOrUpdate(
-          FirebaseTable.TRIE,
-          prefix,
-          data,
-          true,
-        );
+        const hashedPrefix = crypto
+          .createHash('sha256')
+          .update(prefix)
+          .digest('hex');
+
+        batchData[hashedPrefix] = data;
+        count++;
+
+        if (count == 500) {
+          await this.firebaseService.batchCreateOrUpdate(
+            FirebaseTable.TRIE,
+            batchData,
+            true,
+          );
+          count = 0;
+          batchData = {};
+        }
       }
-    });
+    }
+  }
+
+  async sync() {
+    const postfixs = [];
+    for (const postfix of postfixs) {
+      await this.refreshTrie(postfix);
+    }
   }
 }

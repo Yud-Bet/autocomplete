@@ -6,12 +6,12 @@ import { DataGatheringController } from './data-gathering.controller';
 import { DataGatheringService } from './data-gathering.service';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDiPd1PVISLV39PcEBV4HJODy-mfJ8JGFc',
-  authDomain: 'autocomplete-raw.firebaseapp.com',
-  projectId: 'autocomplete-raw',
-  storageBucket: 'autocomplete-raw.appspot.com',
-  messagingSenderId: '1049987359239',
-  appId: '1:1049987359239:web:2d1bf165ea4f772f3000a2',
+  apiKey: 'AIzaSyD5wnK6Xew1_cfVshicL__AI_HiPipvy5U',
+  authDomain: 'autocomplete-raw-e7a84.firebaseapp.com',
+  projectId: 'autocomplete-raw-e7a84',
+  storageBucket: 'autocomplete-raw-e7a84.appspot.com',
+  messagingSenderId: '997623537080',
+  appId: '1:997623537080:web:ac9f8e0bc8e813ed8e834d',
 };
 
 const extraFirebaseConfig = {

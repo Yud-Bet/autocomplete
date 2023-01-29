@@ -4,6 +4,8 @@ import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { TrieCacheItem } from './types/trie.type';
 
+var crypto = require('crypto');
+
 @Injectable()
 export class QueryService {
   constructor(
@@ -19,9 +21,10 @@ export class QueryService {
   }
 
   async search(query: string) {
+    const hashedQuery = crypto.createHash('sha256').update(query).digest('hex');
     const trieCacheDoc = await this.firebaseService.get(
       FirebaseTable.TRIE,
-      query,
+      hashedQuery,
     );
     if (!trieCacheDoc) return [];
 
@@ -30,6 +33,7 @@ export class QueryService {
     );
     return trieCache
       .sort((a, b) => b.score - a.score)
-      .map((value) => value.prefix);
+      .map((value) => value.prefix)
+      .slice(0, 5);
   }
 }

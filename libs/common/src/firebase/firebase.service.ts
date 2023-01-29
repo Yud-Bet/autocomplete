@@ -9,11 +9,14 @@ import {
   getDoc,
   getDocs,
   getFirestore,
+  query,
   setDoc,
+  writeBatch,
 } from 'firebase/firestore';
 
 import { FirebaseConnectionService } from './connection.service';
 import { FirebaseTable } from './enums';
+import { buildPaginationConstraint } from './utils/firebase.utils';
 
 @Injectable()
 export class FirebaseService {
@@ -29,10 +32,29 @@ export class FirebaseService {
     this.adminAuth = connection.adminApp.auth();
   }
 
-  async list(table: FirebaseTable) {
+  async list(
+    table: FirebaseTable | string,
+    limit: number = 100000,
+    startAfterId: string = '',
+  ) {
+    console.log('Hello ne');
     const collectionRef = collection(this.firestore, table);
-    const docs = await getDocs(collectionRef);
-    return docs.docs.map((value) => value.data());
+
+    const constraint = await buildPaginationConstraint(
+      limit,
+      startAfterId,
+      collectionRef,
+    );
+    const q = query(collectionRef, ...constraint);
+    console.log('1');
+
+    const docs = await getDocs(q);
+    console.log('2');
+    console.log(docs.docs.length);
+
+    return docs.docs.map((value) => {
+      return { ...value.data(), id: value.id };
+    });
   }
 
   async get(table: FirebaseTable, key: string) {
@@ -62,6 +84,24 @@ export class FirebaseService {
     }
     const docRef = doc(fs, table, key);
     await setDoc(docRef, data);
+  }
+
+  async batchCreateOrUpdate(
+    table: FirebaseTable,
+    data: any,
+    useExtraDb = false,
+  ) {
+    let fs = this.firestore;
+    if (useExtraDb && this.extraFirestore) {
+      fs = this.extraFirestore;
+    }
+    const batch = writeBatch(fs);
+
+    for (const [key, value] of Object.entries(data)) {
+      const docRef = doc(fs, table, key);
+      batch.set(docRef, value);
+    }
+    await batch.commit();
   }
 
   async verify(token: string) {
