@@ -2,7 +2,7 @@ version: '2'
 
 services:
   data-gathering:
-    image: autocomplete-data-gathering:${IMAGE_TAG}
+    image: autocomplete-data-gathering:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: ./apps/data-gathering/Dockerfile
@@ -16,7 +16,7 @@ services:
       - '3000:3000'
 
   query:
-    image: autocomplete-query:${IMAGE_TAG}
+    image: autocomplete-query:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: ./apps/query/Dockerfile

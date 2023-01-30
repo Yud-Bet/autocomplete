@@ -1,8 +1,9 @@
 import { FirebaseService } from '@app/common';
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { CacheInterceptor, Controller, Get, Query, UseInterceptors } from '@nestjs/common';
 import { QueryService } from './query.service';
 
 @Controller()
+@UseInterceptors(CacheInterceptor)
 export class QueryController {
   constructor(
     private readonly queryService: QueryService,
