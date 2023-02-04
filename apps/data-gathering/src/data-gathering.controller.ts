@@ -1,5 +1,12 @@
 import { getAllValidChildren, Trie } from '@app/common';
-import { Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { DataGatheringService } from './data-gathering.service';
 
 @Controller()
@@ -22,9 +29,22 @@ export class DataGatheringController {
     return await this.dataGatheringService.aggregation();
   }
 
+  @Post('aggregation-v2')
+  async aggregationV2() {
+    return await this.dataGatheringService.aggregationV2();
+  }
+
   @Post('refresh-trie')
   async refreshTrie() {
     return await this.dataGatheringService.refreshTrie();
     // return await this.dataGatheringService.sync();
+  }
+
+  @Post('distributed-sync-trie')
+  async distributedSyncTrie(@Body('prefixs') prefixs: string[]) {
+    if (!prefixs || prefixs.length == 0) {
+      throw new BadRequestException('List of prefixs is required!');
+    }
+    return await this.dataGatheringService.sync(prefixs);
   }
 }

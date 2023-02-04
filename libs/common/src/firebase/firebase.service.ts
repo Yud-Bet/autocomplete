@@ -32,12 +32,11 @@ export class FirebaseService {
     this.adminAuth = connection.adminApp.auth();
   }
 
-  async list(
+  async list<T = any>(
     table: FirebaseTable | string,
     limit: number = 100000,
     startAfterId: string = '',
   ) {
-    console.log('Hello ne');
     const collectionRef = collection(this.firestore, table);
 
     const constraint = await buildPaginationConstraint(
@@ -46,18 +45,15 @@ export class FirebaseService {
       collectionRef,
     );
     const q = query(collectionRef, ...constraint);
-    console.log('1');
 
     const docs = await getDocs(q);
-    console.log('2');
-    console.log(docs.docs.length);
 
     return docs.docs.map((value) => {
-      return { ...value.data(), id: value.id };
+      return { ...value.data(), id: value.id } as T;
     });
   }
 
-  async get(table: FirebaseTable, key: string) {
+  async get(table: FirebaseTable | string, key: string) {
     const docRef = doc(this.firestore, table, key);
     const docSnap = await getDoc(docRef);
 
@@ -65,7 +61,7 @@ export class FirebaseService {
     return docSnap.data();
   }
 
-  async create(table: FirebaseTable, data: any) {
+  async create(table: FirebaseTable | string, data: any) {
     const collectionRef = collection(this.firestore, table);
     const docRef = await addDoc(collectionRef, data);
     data.id = docRef.id;
@@ -73,7 +69,7 @@ export class FirebaseService {
   }
 
   async createOrUpdate(
-    table: FirebaseTable,
+    table: FirebaseTable | string,
     key: string,
     data: any,
     useExtraDb = false,
@@ -87,7 +83,7 @@ export class FirebaseService {
   }
 
   async batchCreateOrUpdate(
-    table: FirebaseTable,
+    table: FirebaseTable | string,
     data: any,
     useExtraDb = false,
   ) {

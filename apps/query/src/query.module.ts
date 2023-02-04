@@ -13,7 +13,7 @@ const firebaseConfig = {
   messagingSenderId: '557946447390',
   appId: '1:557946447390:web:f26b5b5084451104adf00f',
 };
-const day = 86400; 
+const day = 86400;
 
 @Module({
   imports: [
@@ -29,7 +29,7 @@ const day = 86400;
       port: process.env.REDIS_PORT,
       password: process.env.REDIS_PASSWORD,
       isGlobal: true,
-      ttl: 2 * day,
+      ttl: 7 * day,
     }),
   ],
   controllers: [QueryController],
