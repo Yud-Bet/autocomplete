@@ -26,7 +26,7 @@ export class DataGatheringService {
     return true;
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_5AM)
+  // @Cron(CronExpression.EVERY_DAY_AT_5AM)
   async handleCron() {
     this.logger.debug('Called cron job everyday at 5AM');
 
@@ -34,7 +34,7 @@ export class DataGatheringService {
     await this.refreshTrie();
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  // @Cron(CronExpression.EVERY_10_MINUTES)
   async handleCronV2() {
     this.logger.debug('Called cron job every 10 minutes');
 
