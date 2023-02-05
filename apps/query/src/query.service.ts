@@ -21,7 +21,10 @@ export class QueryService {
   }
 
   async search(query: string) {
-    const hashedQuery = crypto.createHash('sha256').update(query).digest('hex');
+    const hashedQuery = crypto
+      .createHash('sha256')
+      .update(query.toLowerCase())
+      .digest('hex');
     const trieCacheDoc = await this.firebaseService.get(
       FirebaseTable.TRIE,
       hashedQuery,
