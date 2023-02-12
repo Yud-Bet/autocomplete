@@ -1,5 +1,6 @@
 ## Frontend repo
-[Autocomplete UI](https://github.com/Yud-Bet/autocomplete-ui)
+[Autocomplete UI](https://github.com/Yud-Bet/autocomplete-ui)  
+[Ceeit on Air](https://autocomplete-ui-psooqiuavq-uc.a.run.app)
 
 ## System design
 ![System design](/assets/system-design.png "System design")
@@ -51,6 +52,10 @@ Trie is converted to hash table form and save to noSQL database.
 Service that perform search autocomplete.
 We can futher optimize query service by cache the result in the browser.
 ![Query service](/assets/query-service.png "Query service")
+
+### Shard map manager
+The next thing we want to look at is scaling the database.
+![Shard map manager](/assets/shard-map-manager.png "Shard map manager")
 
 ## Installation
 
